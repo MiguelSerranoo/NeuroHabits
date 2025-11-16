@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "164433307091",
+    "firebase_url": "https://neurohabits-af1b8-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "neurohabits-af1b8",
+    "storage_bucket": "neurohabits-af1b8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:164433307091:android:04ade5062727b32f56fb26",
+        "android_client_info": {
+          "package_name": "com.neurohabits_app.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "164433307091-gdj31jhultf88oop2go6a1k1komutrbm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxhzkk0fAfXHbZZuTVXlvnWX0kuIQ3N9k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "164433307091-gdj31jhultf88oop2go6a1k1komutrbm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
