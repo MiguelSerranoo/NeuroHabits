@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:neurohabits_app/paginas/pagina_calendario.dart';
 import 'package:neurohabits_app/paginas/pagina_habitos.dart';
 import 'package:neurohabits_app/conexiones/servicio_habitos.dart';
+import 'package:neurohabits_app/paginas/popup_habitos.dart';
 
 class PantallaInicio extends StatefulWidget {
   const PantallaInicio({super.key, required this.title});
@@ -125,7 +126,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
                 },
               ),
             ),
-            Container(
+            SizedBox(
               height: MediaQuery.of(context).size.height * 0.44,
               width: MediaQuery.of(context).size.width,
 
@@ -151,10 +152,9 @@ class _PantallaInicioState extends State<PantallaInicio> {
                         });
                         return ListaHabitos(
                           habitos: List<Map<String, dynamic>>.from(habitos),
-                          // onTap: (habito) {
-                          //   Navigator.pushNamed(context, '/DetalleHabito',
-                          //       arguments: habito);
-                          // },
+                          onTap: (habito) {
+                            mostrarPopupHabito(context, habito);
+                          },
                         );
                       },
                     ),

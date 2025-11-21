@@ -78,7 +78,6 @@ class HabitCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Icon(Icons.arrow_forward_ios, color: Colors.white54, size: 18),
               ],
             ),
 
@@ -96,7 +95,7 @@ class HabitCard extends StatelessWidget {
             Text(
               repetirSiempre
                   ? "∞ Se repite para siempre"
-                  : "Hasta el ${fechaFinFormateada}",
+                  : "Hasta el $fechaFinFormateada",
               style: TextStyle(color: Colors.white.withOpacity(0.9)),
             ),
 

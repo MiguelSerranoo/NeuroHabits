@@ -9,7 +9,6 @@ class ServicioHabitos {
     return mapa[weekday]!;
   }
 
-  // 🔥 FUNCIÓN PRINCIPAL: obtener hábitos válidos para un día
   static Future<List<Map<String, dynamic>>> obtenerHabitosDelDia(
     DateTime diaSeleccionado,
   ) async {
