@@ -98,7 +98,7 @@ class _PerfilState extends State<Perfil> {
             OutlinedButton(
               onPressed: () async {
                 await FirebaseAuth.instance.signOut();
-                Navigator.pushReplacementNamed(context, "/");
+                Navigator.pushReplacementNamed(context, "/login");
               },
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Colors.white70, width: 1.5),

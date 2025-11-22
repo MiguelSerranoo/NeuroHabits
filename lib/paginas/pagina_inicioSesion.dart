@@ -15,9 +15,10 @@ class _InicioSesionState extends State<InicioSesion>
     with SingleTickerProviderStateMixin {
   bool mostrarLogin = false;
   bool mostrarRegistro = false;
-
+  bool mostrarLogin2 = false;
   final TextEditingController _emailCtrl = TextEditingController();
   final TextEditingController _passCtrl = TextEditingController();
+  final TextEditingController _passRepeatCtrl = TextEditingController();
 
   Future<void> _login() async {
     try {
@@ -25,7 +26,8 @@ class _InicioSesionState extends State<InicioSesion>
         _emailCtrl.text.trim(),
         _passCtrl.text.trim(),
       );
-      if (user != null) {
+      if (user != null &&
+          _passCtrl.text.trim() == _passRepeatCtrl.text.trim()) {
         // Ir a comprobar si tiene personaje
         Navigator.pushReplacementNamed(context, '/CheckPersonaje');
       }
@@ -50,22 +52,30 @@ class _InicioSesionState extends State<InicioSesion>
     }
   }
 
-  void _loginGoogle() {
-    setState(() {
-      mostrarLogin = false;
-    });
+  Future<void> _loginGoogle() async {
+    mostrarLogin = false;
+    try {
+      final user = await AuthService.loginConGoogle();
+      if (user != null) {
+        Navigator.pushReplacementNamed(context, '/CheckPersonaje');
+      }
+    } catch (e) {
+      print("Error Google: $e");
+    }
   }
 
   void _loginIniciosesion() {
     setState(() {
       mostrarLogin = true;
       mostrarRegistro = false;
+      mostrarLogin2 = true;
     });
   }
 
   void _loginRegistro() {
     setState(() {
       mostrarRegistro = true;
+      mostrarLogin2 = false;
     });
   }
 
@@ -122,192 +132,186 @@ class _InicioSesionState extends State<InicioSesion>
                     ),
 
                     // 🔹 Campos de login (ocultos temporalmente)
-                    Visibility(
-                      visible: mostrarLogin,
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 30),
-                          TextFormField(
-                            style: const TextStyle(
-                              color: Color.fromARGB(255, 131, 32, 148),
-                            ),
-                            decoration: const InputDecoration(
-                              labelText: 'Correo ',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) =>
-                                value!.isEmpty ? 'Introduce el Correo' : null,
-                          ),
-                          const SizedBox(height: 20),
-                          TextFormField(
-                            obscureText: true,
-                            style: const TextStyle(
-                              color: Color.fromARGB(255, 131, 32, 148),
-                            ),
-                            decoration: const InputDecoration(
-                              labelText: 'Contraseña',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) => value!.isEmpty
-                                ? 'Introduce la contraseña'
-                                : null,
-                          ),
-
-                          Visibility(
-                            visible: mostrarRegistro,
-                            child: Column(
-                              children: [
-                                const SizedBox(height: 20),
-                                TextFormField(
-                                  style: const TextStyle(
-                                    color: Color.fromARGB(255, 131, 32, 148),
-                                  ),
-                                  decoration: const InputDecoration(
-                                    labelText: 'Nombre',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  validator: (value) => value!.isEmpty
-                                      ? 'Introduce Nombre'
-                                      : null,
-                                ),
-                                const SizedBox(height: 20),
-                                TextFormField(
-                                  style: const TextStyle(
-                                    color: Color.fromARGB(255, 131, 32, 148),
-                                  ),
-                                  decoration: const InputDecoration(
-                                    labelText: 'Apellidos',
-                                    border: OutlineInputBorder(),
-                                  ),
-                                  validator: (value) => value!.isEmpty
-                                      ? 'Introduce los Apellidos'
-                                      : null,
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 30),
-                          Visibility(
-                            visible: mostrarLogin,
-                            child: ElevatedButton(
-                              onPressed: _login,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 40,
-                                  vertical: 15,
-                                ),
-                                side: const BorderSide(
-                                  color: Color.fromARGB(255, 68, 66, 66),
-                                  width: 1.5,
-                                ),
-                              ),
-                              child: const Text(
-                                'Iniciar Sesión',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Visibility(
-                            visible: mostrarRegistro,
-                            child: ElevatedButton(
-                              onPressed: _Registro,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 40,
-                                  vertical: 15,
-                                ),
-                                side: const BorderSide(
-                                  color: Color.fromARGB(255, 68, 66, 66),
-                                  width: 1.5,
-                                ),
-                              ),
-                              child: const Text(
-                                'Registrarse',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                    Column(
+                      children: [
+                        const SizedBox(height: 30),
+                        Visibility(
+                          visible: mostrarLogin,
+                          child: Column(
                             children: [
-                              Visibility(
-                                visible: mostrarLogin,
-                                child: RichText(
-                                  text: TextSpan(
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                    ),
-                                    children: [
-                                      const TextSpan(
-                                        text: '¿No tienes cuenta? ',
-                                      ),
-                                      TextSpan(
-                                        text: 'Regístrate aquí',
-                                        style: const TextStyle(
-                                          color: Color.fromARGB(
-                                            255,
-                                            131,
-                                            32,
-                                            148,
-                                          ),
-                                          fontWeight: FontWeight.bold,
-                                          decoration: TextDecoration.underline,
-                                        ),
-                                        recognizer: TapGestureRecognizer()
-                                          ..onTap = () {
-                                            _loginRegistro();
-                                          },
-                                      ),
-                                    ],
-                                  ),
+                              TextFormField(
+                                controller: _emailCtrl,
+                                style: const TextStyle(
+                                  color: Color.fromARGB(255, 131, 32, 148),
                                 ),
+
+                                decoration: const InputDecoration(
+                                  labelText: 'Correo ',
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) => value!.isEmpty
+                                    ? 'Introduce el Correo'
+                                    : null,
                               ),
-                              Visibility(
-                                visible: mostrarRegistro,
-                                child: RichText(
-                                  text: TextSpan(
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 13,
-                                    ),
-                                    children: [
-                                      const TextSpan(
-                                        text: '¿Ya tienes cuenta? ',
-                                      ),
-                                      TextSpan(
-                                        text: 'Inicia sesión aquí',
-                                        style: const TextStyle(
-                                          color: Color.fromARGB(
-                                            255,
-                                            131,
-                                            32,
-                                            148,
-                                          ),
-                                          fontWeight: FontWeight.bold,
-                                          decoration: TextDecoration.underline,
-                                        ),
-                                        recognizer: TapGestureRecognizer()
-                                          ..onTap = () {
-                                            _loginIniciosesion();
-                                          },
-                                      ),
-                                    ],
-                                  ),
+
+                              const SizedBox(height: 20),
+
+                              TextFormField(
+                                controller: _passCtrl,
+                                obscureText: true,
+                                style: const TextStyle(
+                                  color: Color.fromARGB(255, 131, 32, 148),
                                 ),
+                                decoration: const InputDecoration(
+                                  labelText: 'Contraseña',
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) => value!.isEmpty
+                                    ? 'Introduce la contraseña'
+                                    : null,
                               ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+
+                        Visibility(
+                          visible: mostrarRegistro,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 20),
+                              TextFormField(
+                                controller: _passRepeatCtrl,
+                                style: const TextStyle(
+                                  color: Color.fromARGB(255, 131, 32, 148),
+                                ),
+                                decoration: const InputDecoration(
+                                  labelText: 'repetir Contraseña',
+                                  border: OutlineInputBorder(),
+                                ),
+                                validator: (value) => value!.isEmpty
+                                    ? 'Introduce la contraseña de nuevo'
+                                    : null,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        Visibility(
+                          visible: mostrarLogin2,
+                          child: ElevatedButton(
+                            onPressed: _login,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 40,
+                                vertical: 15,
+                              ),
+                              side: const BorderSide(
+                                color: Color.fromARGB(255, 68, 66, 66),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: const Text(
+                              'Iniciar Sesión',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Visibility(
+                          visible: mostrarRegistro,
+                          child: ElevatedButton(
+                            onPressed: _Registro,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 40,
+                                vertical: 15,
+                              ),
+                              side: const BorderSide(
+                                color: Color.fromARGB(255, 68, 66, 66),
+                                width: 1.5,
+                              ),
+                            ),
+                            child: const Text(
+                              'Registrarse',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Visibility(
+                              visible: mostrarLogin2,
+                              child: RichText(
+                                text: TextSpan(
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                  ),
+                                  children: [
+                                    const TextSpan(text: '¿No tienes cuenta? '),
+                                    TextSpan(
+                                      text: 'Regístrate aquí',
+                                      style: const TextStyle(
+                                        color: Color.fromARGB(
+                                          255,
+                                          131,
+                                          32,
+                                          148,
+                                        ),
+                                        fontWeight: FontWeight.bold,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          _loginRegistro();
+                                        },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Visibility(
+                              visible: mostrarRegistro,
+                              child: RichText(
+                                text: TextSpan(
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 13,
+                                  ),
+                                  children: [
+                                    const TextSpan(text: '¿Ya tienes cuenta? '),
+                                    TextSpan(
+                                      text: 'Inicia sesión aquí',
+                                      style: const TextStyle(
+                                        color: Color.fromARGB(
+                                          255,
+                                          131,
+                                          32,
+                                          148,
+                                        ),
+                                        fontWeight: FontWeight.bold,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          _loginIniciosesion();
+                                        },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
 
                     const Spacer(),

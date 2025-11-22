@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:neurohabits_app/paginas/modelo_stats.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class StatService {
   static final _db = FirebaseFirestore.instance;
 
   // GUARDA LOS STATS INICIALES DEL USUARIO
   static Future<void> guardarStatsIniciales(List<String> stats) async {
-    final userId = "TEMP_USER_ID"; // Sustituir por tu sistema de auth
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    // Sustituir por tu sistema de auth
 
     for (String stat in stats) {
       final statObj = StatModel(nombre: stat);

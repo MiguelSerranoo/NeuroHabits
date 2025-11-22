@@ -51,6 +51,8 @@ class MyApp extends StatelessWidget {
       ),
 
       routes: {
+        '/login': (context) => const InicioSesion(),
+        '/CheckPersonaje': (context) => const CheckPersonajePage(),
         '/Principal': (context) => const PantallaInicio(title: 'Principal'),
         '/Perfil': (context) => const Perfil(),
         '/CrearHabitos': (context) => CrearHabito(onSaved: () {}),

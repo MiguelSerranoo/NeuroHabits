@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -10,6 +11,7 @@ class CrearHabito extends StatefulWidget {
 }
 
 class _CrearHabitoState extends State<CrearHabito> {
+  final user = FirebaseAuth.instance.currentUser;
   final TextEditingController nombreController = TextEditingController();
   String? statSeleccionado;
   List<String> diasSeleccionados = [];
@@ -29,16 +31,22 @@ class _CrearHabitoState extends State<CrearHabito> {
   final List<String> diasSemana = ["L", "M", "X", "J", "V", "S", "D"];
 
   Future<void> _guardarHabito() async {
-    await FirebaseFirestore.instance.collection("habitos").add({
-      "nombre": nombreController.text,
-      "stat": statSeleccionado,
-      "dias": diasSeleccionados,
-      "repetirSiempre": repetirSiempre,
-      "fechaFin": fechaFin?.toIso8601String(),
-      "hora": hora != null ? "${hora!.hour}:${hora!.minute}" : null,
-      "notificacion": notificacion,
-      "creado": DateTime.now().toIso8601String(),
-    });
+    final uid = user!.uid;
+
+    await FirebaseFirestore.instance
+        .collection("usuarios")
+        .doc(uid)
+        .collection("habitos")
+        .add({
+          "nombre": nombreController.text,
+          "stat": statSeleccionado,
+          "dias": diasSeleccionados,
+          "repetirSiempre": repetirSiempre,
+          "fechaFin": fechaFin?.toIso8601String(),
+          "hora": hora != null ? "${hora!.hour}:${hora!.minute}" : null,
+          "notificacion": notificacion,
+          "creado": DateTime.now().toIso8601String(),
+        });
 
     widget.onSaved();
     Navigator.pop(context);
