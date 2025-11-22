@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
+import 'package:neurohabits_app/conexiones/servicio_auth.dart';
 
 class InicioSesion extends StatefulWidget {
   const InicioSesion({super.key});
@@ -14,12 +15,39 @@ class _InicioSesionState extends State<InicioSesion>
     with SingleTickerProviderStateMixin {
   bool mostrarLogin = false;
   bool mostrarRegistro = false;
-  bool mostrarRegistro2 = false;
 
-  void _login() {
-    Future.microtask(() {
-      Navigator.pushReplacementNamed(context, '/Principal');
-    });
+  final TextEditingController _emailCtrl = TextEditingController();
+  final TextEditingController _passCtrl = TextEditingController();
+
+  Future<void> _login() async {
+    try {
+      final user = await AuthService.loginEmail(
+        _emailCtrl.text.trim(),
+        _passCtrl.text.trim(),
+      );
+      if (user != null) {
+        // Ir a comprobar si tiene personaje
+        Navigator.pushReplacementNamed(context, '/CheckPersonaje');
+      }
+    } catch (e) {
+      // aquí puedes mostrar un snackbar con el error
+      print("Error login: $e");
+    }
+  }
+
+  Future<void> _Registro() async {
+    try {
+      final user = await AuthService.registrarEmail(
+        _emailCtrl.text.trim(),
+        _passCtrl.text.trim(),
+      );
+      if (user != null) {
+        // Registro nuevo → directo a CrearPersonaje
+        Navigator.pushReplacementNamed(context, '/CrearPersonaje');
+      }
+    } catch (e) {
+      print("Error registro: $e");
+    }
   }
 
   void _loginGoogle() {
@@ -28,16 +56,9 @@ class _InicioSesionState extends State<InicioSesion>
     });
   }
 
-  void _loginApple() {
-    setState(() {
-      mostrarLogin = false;
-    });
-  }
-
   void _loginIniciosesion() {
     setState(() {
       mostrarLogin = true;
-      mostrarRegistro2 = true;
       mostrarRegistro = false;
     });
   }
@@ -45,7 +66,6 @@ class _InicioSesionState extends State<InicioSesion>
   void _loginRegistro() {
     setState(() {
       mostrarRegistro = true;
-      mostrarRegistro2 = false;
     });
   }
 
@@ -167,24 +187,51 @@ class _InicioSesionState extends State<InicioSesion>
                             ),
                           ),
                           const SizedBox(height: 30),
-                          ElevatedButton(
-                            onPressed: _login,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 40,
-                                vertical: 15,
+                          Visibility(
+                            visible: mostrarLogin,
+                            child: ElevatedButton(
+                              onPressed: _login,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 40,
+                                  vertical: 15,
+                                ),
+                                side: const BorderSide(
+                                  color: Color.fromARGB(255, 68, 66, 66),
+                                  width: 1.5,
+                                ),
                               ),
-                              side: const BorderSide(
-                                color: Color.fromARGB(255, 68, 66, 66),
-                                width: 1.5,
+                              child: const Text(
+                                'Iniciar Sesión',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
-                            child: const Text(
-                              'Iniciar Sesión',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
+                          ),
+                          Visibility(
+                            visible: mostrarRegistro,
+                            child: ElevatedButton(
+                              onPressed: _Registro,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 40,
+                                  vertical: 15,
+                                ),
+                                side: const BorderSide(
+                                  color: Color.fromARGB(255, 68, 66, 66),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: const Text(
+                                'Registrarse',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
@@ -192,7 +239,7 @@ class _InicioSesionState extends State<InicioSesion>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Visibility(
-                                visible: mostrarRegistro2,
+                                visible: mostrarLogin,
                                 child: RichText(
                                   text: TextSpan(
                                     style: const TextStyle(
@@ -269,8 +316,6 @@ class _InicioSesionState extends State<InicioSesion>
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         _botonInferior('Google', _loginGoogle),
-                        const SizedBox(height: 10),
-                        _botonInferior('Apple', _loginApple),
                         const SizedBox(height: 10),
                         _botonInferior('Iniciar Sesión', _loginIniciosesion),
                         const SizedBox(height: 20),

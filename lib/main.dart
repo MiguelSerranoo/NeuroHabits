@@ -6,6 +6,9 @@ import 'package:neurohabits_app/paginas/pagina_perfil.dart';
 import 'package:neurohabits_app/paginas/pagina_crearhabitos.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:neurohabits_app/paginas/pagina_crearpersonaje.dart';
+import 'package:neurohabits_app/paginas/pagina_checkPersonaje.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,15 +28,39 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'NeuroHabits',
-      themeMode: ThemeMode.dark,
+      debugShowCheckedModeBanner: false,
+      // HOME según si hay usuario o no
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          // Cargando estado inicial
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
+          }
 
-      home: const InicioSesion(),
+          // No hay usuario → ir a login
+          if (!snapshot.hasData) {
+            return const InicioSesion();
+          }
+
+          // Hay usuario → comprobar si tiene personaje
+          return const CheckPersonajePage();
+        },
+      ),
+
       routes: {
         '/Principal': (context) => const PantallaInicio(title: 'Principal'),
         '/Perfil': (context) => const Perfil(),
         '/CrearHabitos': (context) => CrearHabito(onSaved: () {}),
+        '/CrearPersonaje': (context) => const CrearPersonajePage(),
       },
     );
   }
 }
+
+// title: 'NeuroHabits',
+//       themeMode: ThemeMode.dark,
+
+//       home: const InicioSesion(),
