@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:neurohabits_app/paginas/pagina_inicioSesion.dart';
+import 'package:neurohabits_app/paginas/pagina_personaje.dart';
 import 'package:neurohabits_app/paginas/pagina_principal.dart';
 import 'package:flutter/services.dart';
 import 'package:neurohabits_app/paginas/pagina_perfil.dart';
@@ -57,6 +58,7 @@ class MyApp extends StatelessWidget {
         '/Perfil': (context) => const Perfil(),
         '/CrearHabitos': (context) => CrearHabito(onSaved: () {}),
         '/CrearPersonaje': (context) => const CrearPersonajePage(),
+        '/PersonajeCompleto': (context) => const PaginaPersonaje(),
       },
     );
   }

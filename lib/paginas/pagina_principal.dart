@@ -3,6 +3,7 @@ import 'package:neurohabits_app/paginas/pagina_calendario.dart';
 import 'package:neurohabits_app/paginas/pagina_habitos.dart';
 import 'package:neurohabits_app/conexiones/servicio_habitos.dart';
 import 'package:neurohabits_app/paginas/popup_habitos.dart';
+import 'package:neurohabits_app/paginas/pagina_personajerresumen.dart';
 
 class PantallaInicio extends StatefulWidget {
   const PantallaInicio({super.key, required this.title});
@@ -39,9 +40,6 @@ class _PantallaInicioState extends State<PantallaInicio> {
     11: 'Noviembre',
     12: 'Diciembre',
   };
-  void _cargarHabitos() {
-    // Lógica para cargar los hábitos desde la base de datos o cualquier otra fuente
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,14 +108,13 @@ class _PantallaInicioState extends State<PantallaInicio> {
               ),
             ),
 
-            Container(
-              height: MediaQuery.of(context).size.height * 0.24,
-              width: MediaQuery.of(context).size.width, // 100% real
-              color: const Color.fromARGB(255, 255, 19, 19),
-              margin: const EdgeInsets.symmetric(horizontal: 0),
-              child: Stack(children: [
-                  
-                ],
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(context, "/PerfilCompleto"),
+              child: Container(
+                height: MediaQuery.of(context).size.height * 0.24,
+                width: MediaQuery.of(context).size.width, // 100% real
+                margin: const EdgeInsets.symmetric(horizontal: 0),
+                child: const PerfilCompacto(),
               ),
             ),
             SizedBox(
@@ -168,10 +165,6 @@ class _PantallaInicioState extends State<PantallaInicio> {
                     child: GestureDetector(
                       onTap: () {
                         Navigator.pushNamed(context, '/CrearHabitos');
-                        onsaved:
-                        () {
-                          _cargarHabitos();
-                        };
                       },
                       child: Container(
                         width: 45,

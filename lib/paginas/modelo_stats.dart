@@ -48,8 +48,8 @@ class StatModel {
     return {
       "nombre": nombre,
       "nivel": nivel,
-      "experiencia": experiencia,
-      "experienciaNecesaria": experienciaNecesaria,
+      "exp": experiencia,
+      "expNecesaria": experienciaNecesaria,
     };
   }
 
@@ -58,8 +58,8 @@ class StatModel {
     return StatModel(
       nombre: map["nombre"],
       nivel: map["nivel"] ?? 1,
-      experiencia: map["experiencia"] ?? 0,
-      experienciaNecesaria: map["experienciaNecesaria"] ?? 100,
+      experiencia: map["exp"] ?? 0,
+      experienciaNecesaria: map["expNecesaria"] ?? 100,
     );
   }
 }

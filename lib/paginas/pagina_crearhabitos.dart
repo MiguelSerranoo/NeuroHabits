@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_launcher_icons/xml_templates.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 
 class CrearHabito extends StatefulWidget {
@@ -68,7 +67,8 @@ class _CrearHabitoState extends State<CrearHabito> {
   Widget build(BuildContext context) {
     cargarStats();
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF121212),
+
       appBar: AppBar(
         backgroundColor: Colors.black,
 

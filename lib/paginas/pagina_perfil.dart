@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:neurohabits_app/conexiones/servicio_auth.dart';
 
 class Perfil extends StatefulWidget {
