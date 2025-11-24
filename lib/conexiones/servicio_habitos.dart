@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ServicioHabitos {
   static final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -14,9 +15,14 @@ class ServicioHabitos {
   ) async {
     String diaLetra = letraDia(diaSeleccionado.weekday);
     List<Map<String, dynamic>> resultado = [];
+    final userId = FirebaseAuth.instance.currentUser!.uid;
 
     // Obtener todos los hábitos
-    QuerySnapshot snap = await _db.collection("habitos").get();
+    QuerySnapshot snap = await _db
+        .collection("usuarios")
+        .doc(userId)
+        .collection("habitos")
+        .get();
 
     for (var doc in snap.docs) {
       Map<String, dynamic> h = doc.data() as Map<String, dynamic>;

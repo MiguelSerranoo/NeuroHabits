@@ -7,5 +7,3 @@ final List<String> statsDisponibles = [
   "Social",
   "Energía",
 ];
-
-final List<String> statsElegidos = [];

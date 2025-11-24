@@ -26,8 +26,7 @@ class _InicioSesionState extends State<InicioSesion>
         _emailCtrl.text.trim(),
         _passCtrl.text.trim(),
       );
-      if (user != null &&
-          _passCtrl.text.trim() == _passRepeatCtrl.text.trim()) {
+      if (user != null) {
         // Ir a comprobar si tiene personaje
         Navigator.pushReplacementNamed(context, '/CheckPersonaje');
       }
@@ -43,7 +42,8 @@ class _InicioSesionState extends State<InicioSesion>
         _emailCtrl.text.trim(),
         _passCtrl.text.trim(),
       );
-      if (user != null) {
+      if (user != null &&
+          _passCtrl.text.trim() == _passRepeatCtrl.text.trim()) {
         // Registro nuevo → directo a CrearPersonaje
         Navigator.pushReplacementNamed(context, '/CrearPersonaje');
       }

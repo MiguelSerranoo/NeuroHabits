@@ -7,6 +7,8 @@ class ListaHabitos extends StatelessWidget {
 
   const ListaHabitos({super.key, required this.habitos, this.onTap});
 
+  void valiidarHabitos() {}
+
   @override
   Widget build(BuildContext context) {
     if (habitos.isEmpty) {

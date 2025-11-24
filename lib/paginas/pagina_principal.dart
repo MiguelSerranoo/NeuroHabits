@@ -115,7 +115,10 @@ class _PantallaInicioState extends State<PantallaInicio> {
               width: MediaQuery.of(context).size.width, // 100% real
               color: const Color.fromARGB(255, 255, 19, 19),
               margin: const EdgeInsets.symmetric(horizontal: 0),
-              child: Text("Gamificacion con estadisticas"),
+              child: Stack(children: [
+                  
+                ],
+              ),
             ),
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.111,

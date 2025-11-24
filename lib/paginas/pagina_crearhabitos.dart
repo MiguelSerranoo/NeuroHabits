@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_launcher_icons/xml_templates.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 
 class CrearHabito extends StatefulWidget {
   final VoidCallback onSaved;
@@ -19,14 +21,24 @@ class _CrearHabitoState extends State<CrearHabito> {
   DateTime? fechaFin;
   TimeOfDay? hora;
   bool notificacion = false;
+  bool botonActivo = false;
 
-  final List<String> stats = [
-    "Salud",
-    "Productividad",
-    "Personal",
-    "Estudio",
-    "Ejercicio",
-  ];
+  final List<String> stats = [];
+  Future<void> cargarStats() async {
+    final uid = user!.uid;
+    final snapshot = await FirebaseFirestore.instance
+        .collection("usuarios")
+        .doc(uid)
+        .collection("stats")
+        .get();
+
+    setState(() {
+      stats.clear();
+      for (var doc in snapshot.docs) {
+        stats.add(doc['nombre']);
+      }
+    });
+  }
 
   final List<String> diasSemana = ["L", "M", "X", "J", "V", "S", "D"];
 
@@ -54,16 +66,21 @@ class _CrearHabitoState extends State<CrearHabito> {
 
   @override
   Widget build(BuildContext context) {
+    cargarStats();
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
 
         leading: IconButton(
+          color: Colors.white,
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text("Crear Hábito"),
+        title: const Text(
+          "Crear Hábito",
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -72,32 +89,124 @@ class _CrearHabitoState extends State<CrearHabito> {
           children: [
             const Text(
               "Nombre del hábito",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
-            TextField(controller: nombreController),
+            TextField(
+              controller: nombreController,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                hintText: "Ingresa el nombre del hábito",
+                hintStyle: TextStyle(color: Colors.white54),
+                enabledBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white54),
+                ),
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+              ),
+            ),
             const SizedBox(height: 20),
 
             const Text(
               "Seleccionar stat",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
-            DropdownButton<String>(
-              hint: const Text("Selecciona un stat"),
+            DropdownButton2<String>(
+              isExpanded: true,
+
+              // 🔽 TAMAÑO Y ESTILO DEL BOTÓN CERRADO
+              buttonStyleData: ButtonStyleData(
+                height: 42,
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  color: Colors.transparent,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: Colors.grey.shade500, // 🔹 borde más fino y gris
+                    width: 0.8,
+                  ),
+                ),
+              ),
+
+              // 🔽 ESTILO DEL MENÚ DESPLEGADO
+              dropdownStyleData: DropdownStyleData(
+                maxHeight: 150, // 🔹 menos alto
+                width: 200, // 🔹 más pequeño horizontalmente
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: Colors.grey.shade600, // 🔹 borde gris sutil
+                    width: 0.8,
+                  ),
+                ),
+                offset: const Offset(0, -5), // 🔹 lo acerca más al botón
+              ),
+
+              hint: const Text(
+                "Selecciona un stat",
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14, // 🔹 un poco más pequeño
+                ),
+              ),
+
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 15, // 🔹 tamaño controlado
+              ),
+
               value: statSeleccionado,
-              items: stats
-                  .map((s) => DropdownMenuItem(value: s, child: Text(s)))
-                  .toList(),
-              onChanged: (v) => setState(() => statSeleccionado = v),
+
+              items: stats.map((s) {
+                return DropdownMenuItem(
+                  value: s,
+                  child: Text(
+                    s,
+                    style: const TextStyle(color: Colors.white, fontSize: 15),
+                  ),
+                );
+              }).toList(),
+
+              onChanged: (v) {
+                setState(() => statSeleccionado = v);
+              },
+
+              iconStyleData: const IconStyleData(
+                icon: Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white70,
+                  size: 20,
+                ),
+              ),
             ),
+
             const SizedBox(height: 20),
 
-            const Text("Repetir en los días:"),
+            const Text(
+              "Repetir en los días:",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
             Wrap(
+              spacing: 4.0,
               children: diasSemana.map((dia) {
                 bool seleccionado = diasSeleccionados.contains(dia);
                 return ChoiceChip(
                   label: Text(dia),
+                  selectedColor: const Color.fromARGB(255, 154, 33, 202),
                   selected: seleccionado,
+                  shape: const CircleBorder(),
+                  showCheckmark: false,
                   onSelected: (v) {
                     setState(() {
                       if (v) {
@@ -114,36 +223,59 @@ class _CrearHabitoState extends State<CrearHabito> {
             SwitchListTile(
               value: repetirSiempre,
               onChanged: (v) => setState(() => repetirSiempre = v),
-              title: const Text("Repetir siempre"),
+              title: const Text(
+                "Repetir siempre",
+                style: TextStyle(color: Colors.white),
+              ),
             ),
             const SizedBox(height: 20),
-
-            const Text("Fecha fin del hábito"),
-            TextButton(
-              onPressed: () async {
-                final f = await showDatePicker(
-                  context: context,
-                  firstDate: DateTime.now(),
-                  lastDate: DateTime(2100),
-                  initialDate: DateTime.now(),
-                );
-                if (f != null) {
-                  setState(() => fechaFin = f);
-                } else {
-                  setState(
-                    () => fechaFin = DateTime.now().subtract(
-                      const Duration(days: 365),
+            Visibility(
+              visible: !repetirSiempre,
+              child: Column(
+                children: [
+                  const Text(
+                    "Fecha fin del hábito",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
-                  );
-                }
-              },
-              child: Text(
-                fechaFin == null ? "Seleccionar fecha" : fechaFin.toString(),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      final f = await showDatePicker(
+                        context: context,
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2100),
+                        initialDate: DateTime.now(),
+                      );
+                      if (f != null) {
+                        setState(() => fechaFin = f);
+                      } else {
+                        setState(
+                          () => fechaFin = DateTime.now().subtract(
+                            const Duration(days: 365),
+                          ),
+                        );
+                      }
+                    },
+                    child: Text(
+                      fechaFin == null
+                          ? "Seleccionar fecha"
+                          : fechaFin.toString(),
+                    ),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 20),
 
-            const Text("Hora (opcional)"),
+            const Text(
+              "Hora (Obligatorio)",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
             TextButton(
               onPressed: () async {
                 final h = await showTimePicker(
@@ -160,7 +292,10 @@ class _CrearHabitoState extends State<CrearHabito> {
             SwitchListTile(
               value: notificacion,
               onChanged: (v) => setState(() => notificacion = v),
-              title: const Text("Activar notificación"),
+              title: const Text(
+                "Activar notificación",
+                style: TextStyle(color: Colors.white),
+              ),
             ),
 
             const SizedBox(height: 30),

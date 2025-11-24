@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:neurohabits_app/conexiones/servicio_auth.dart';
 
 class Perfil extends StatefulWidget {
   const Perfil({super.key});
@@ -97,7 +98,7 @@ class _PerfilState extends State<Perfil> {
             // 🔹 Botón cerrar sesión
             OutlinedButton(
               onPressed: () async {
-                await FirebaseAuth.instance.signOut();
+                await AuthService.logout();
                 Navigator.pushReplacementNamed(context, "/login");
               },
               style: OutlinedButton.styleFrom(
