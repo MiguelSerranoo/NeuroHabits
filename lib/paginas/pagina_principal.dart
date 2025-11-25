@@ -4,6 +4,7 @@ import 'package:neurohabits_app/paginas/pagina_habitos.dart';
 import 'package:neurohabits_app/conexiones/servicio_habitos.dart';
 import 'package:neurohabits_app/paginas/popup_habitos.dart';
 import 'package:neurohabits_app/paginas/pagina_personajerresumen.dart';
+import 'package:neurohabits_app/conexiones/Controlador.dart';
 
 class PantallaInicio extends StatefulWidget {
   const PantallaInicio({super.key, required this.title});
@@ -17,6 +18,8 @@ class PantallaInicio extends StatefulWidget {
 class _PantallaInicioState extends State<PantallaInicio> {
   DateTime hoy = DateTime.now();
   final DateTime now = DateTime.now();
+  final RefreshController refreshController = RefreshController();
+
   static Map<int, String> diasSemana = {
     1: 'Lunes',
     2: 'Martes',
@@ -40,6 +43,9 @@ class _PantallaInicioState extends State<PantallaInicio> {
     11: 'Noviembre',
     12: 'Diciembre',
   };
+  void refrescar() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +120,10 @@ class _PantallaInicioState extends State<PantallaInicio> {
                 height: MediaQuery.of(context).size.height * 0.24,
                 width: MediaQuery.of(context).size.width, // 100% real
                 margin: const EdgeInsets.symmetric(horizontal: 0),
-                child: const PerfilCompacto(),
+                child: PerfilCompacto(
+                  onRefresh: refrescar,
+                  refreshController: refreshController,
+                ),
               ),
             ),
             SizedBox(
@@ -126,62 +135,72 @@ class _PantallaInicioState extends State<PantallaInicio> {
                 },
               ),
             ),
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.44,
-              width: MediaQuery.of(context).size.width,
+            AnimatedBuilder(
+              animation:
+                  refreshController, // 🔥 Se reconstruye cuando refrescar() se llama
+              builder: (context, _) {
+                return SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.44,
+                  width: MediaQuery.of(context).size.width,
 
-              child: Stack(
-                children: [
-                  Positioned.fill(
-                    child: FutureBuilder(
-                      future: ServicioHabitos.obtenerHabitosDelDia(hoy),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) {
-                          return const Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                            ),
-                          );
-                        }
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: FutureBuilder(
+                          future: ServicioHabitos.obtenerHabitosDelDia(hoy),
+                          builder: (context, snapshot) {
+                            if (!snapshot.hasData) {
+                              return const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              );
+                            }
 
-                        List habitos = snapshot.data as List;
-                        habitos.sort((a, b) {
-                          String horaA = a["hora"] ?? "00:00";
-                          String horaB = b["hora"] ?? "00:00";
-                          return horaA.compareTo(horaB);
-                        });
-                        return ListaHabitos(
-                          habitos: List<Map<String, dynamic>>.from(habitos),
-                          onTap: (habito) {
-                            mostrarPopupHabito(context, habito);
+                            List habitos = snapshot.data as List;
+                            habitos.sort((a, b) {
+                              String horaA = a["hora"] ?? "00:00";
+                              String horaB = b["hora"] ?? "00:00";
+                              return horaA.compareTo(horaB);
+                            });
+                            return ListaHabitos(
+                              habitos: List<Map<String, dynamic>>.from(habitos),
+                              onTap: (habito) {
+                                mostrarPopupHabito(context, habito);
+                              },
+                              refreshController: refreshController,
+                            );
                           },
-                        );
-                      },
-                    ),
-                  ),
-                  Positioned(
-                    right: 20,
-                    bottom: 20,
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/CrearHabitos');
-                      },
-                      child: Container(
-                        width: 45,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white70, width: 2),
-                          image: const DecorationImage(
-                            fit: BoxFit.cover,
-                            image: AssetImage("assets/imagenes/cruz.png"),
+                        ),
+                      ),
+                      Positioned(
+                        right: 20,
+                        bottom: 20,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, '/CrearHabitos');
+                          },
+                          child: Container(
+                            width: 45,
+                            height: 45,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white70,
+                                width: 2,
+                              ),
+                              image: const DecorationImage(
+                                fit: BoxFit.cover,
+                                image: AssetImage("assets/imagenes/cruz.png"),
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ),
+                );
+              },
             ),
           ],
         ),
@@ -189,57 +208,3 @@ class _PantallaInicioState extends State<PantallaInicio> {
     );
   }
 }
-
-// DefaultTabController(
-//       length: 2,
-//       child: Scaffold(
-//         extendBody: true,
-//         backgroundColor: Colors.white,
-//         bottomNavigationBar: BottomAppBar(
-//           color: Colors.transparent,
-//           elevation: 0,
-//           child: menu(),
-//         ),
-//         body: const TabBarView(
-//           children: [
-//             Pagina1(),
-//             Pagina2(),
-//             /*
-// 		Aquí es donde debes colocar tus diferentes páginas, cuyo número debe ser igual al de las pestañas (Tabs). Añade o quita pestañas según tus necesidades.
-// 		*/
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-
-//   Widget menu() {
-//     return Container(
-//       margin: EdgeInsets.only(right: 25, left: 25),
-//       decoration: BoxDecoration(
-//         borderRadius: BorderRadius.circular(40),
-//         border: Border.all(width: 0.05, color: Color.fromARGB(255, 24, 83, 79)),
-//         color: Colors.white.withOpacity(0.9),
-//         boxShadow: [
-//           BoxShadow(
-//             color: Colors.black.withOpacity(0.2),
-//             spreadRadius: 2,
-//             blurRadius: 5,
-//             offset: Offset(0, 5),
-//           ),
-//         ],
-//       ),
-//       child: TabBar(
-//         labelPadding: EdgeInsets.all(5),
-//         labelColor: Color.fromARGB(255, 33, 46, 83),
-//         dividerColor: Colors.transparent,
-//         unselectedLabelColor: Color.fromARGB(255, 33, 46, 83).withOpacity(0.4),
-//         indicatorSize: TabBarIndicatorSize.label,
-//         indicatorPadding: EdgeInsets.only(bottom: 5.0),
-//         indicatorColor: Color.fromARGB(255, 206, 106, 107),
-//         tabs: const [
-//           Tab(icon: Icon(Icons.home, size: 27)),
-//           Tab(icon: Icon(Icons.school, size: 27)),
-//         ],
-//       ),
-//     );

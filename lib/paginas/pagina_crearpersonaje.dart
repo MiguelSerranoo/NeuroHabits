@@ -134,7 +134,7 @@ class _CrearPersonajePageState extends State<CrearPersonajePage> {
             ),
             const SizedBox(height: 25),
             Text(
-              "Elige entre 3 y 5 stats para tu personaje",
+              "Elige entre 3 y 5 habilidades para tu personaje",
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),

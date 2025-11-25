@@ -2,10 +2,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:neurohabits_app/conexiones/Controlador.dart';
 
 class CrearHabito extends StatefulWidget {
   final VoidCallback onSaved;
-  const CrearHabito({super.key, required this.onSaved});
+  final RefreshController refreshController;
+
+  const CrearHabito({
+    super.key,
+    required this.onSaved,
+    required this.refreshController,
+  });
 
   @override
   State<CrearHabito> createState() => _CrearHabitoState();
@@ -21,6 +28,8 @@ class _CrearHabitoState extends State<CrearHabito> {
   TimeOfDay? hora;
   bool notificacion = false;
   bool botonActivo = false;
+  Color ColorHora = Colors.white;
+  final RefreshController refreshController = RefreshController();
 
   final List<String> stats = [];
   Future<void> cargarStats() async {
@@ -41,31 +50,39 @@ class _CrearHabitoState extends State<CrearHabito> {
 
   final List<String> diasSemana = ["L", "M", "X", "J", "V", "S", "D"];
 
-  Future<void> _guardarHabito() async {
+  Future<void> _guardarHabito(RefreshController refreshController) async {
     final uid = user!.uid;
+    if (hora != null) {
+      await FirebaseFirestore.instance
+          .collection("usuarios")
+          .doc(uid)
+          .collection("habitos")
+          .add({
+            "nombre": nombreController.text,
+            "stat": statSeleccionado,
+            "dias": diasSeleccionados,
+            "repetirSiempre": repetirSiempre,
+            "fechaFin": fechaFin?.toIso8601String(),
+            "hora": hora != null ? "${hora!.hour}:${hora!.minute}" : null,
+            "notificacion": notificacion,
+            "creado": DateTime.now().toIso8601String(),
+            "hechoHoy": false,
+          });
+      setState(() => ColorHora = Colors.white);
 
-    await FirebaseFirestore.instance
-        .collection("usuarios")
-        .doc(uid)
-        .collection("habitos")
-        .add({
-          "nombre": nombreController.text,
-          "stat": statSeleccionado,
-          "dias": diasSeleccionados,
-          "repetirSiempre": repetirSiempre,
-          "fechaFin": fechaFin?.toIso8601String(),
-          "hora": hora != null ? "${hora!.hour}:${hora!.minute}" : null,
-          "notificacion": notificacion,
-          "creado": DateTime.now().toIso8601String(),
-        });
+      widget.onSaved();
+      refreshController.refrescar();
 
-    widget.onSaved();
-    Navigator.pop(context);
+      Navigator.pop(context);
+    } else {
+      setState(() => ColorHora = Colors.red);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     cargarStats();
+
     return Scaffold(
       backgroundColor: const Color(0xFF121212),
 
@@ -111,7 +128,7 @@ class _CrearHabitoState extends State<CrearHabito> {
             const SizedBox(height: 20),
 
             const Text(
-              "Seleccionar stat",
+              "Seleccionar Habilidad",
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
@@ -151,7 +168,7 @@ class _CrearHabitoState extends State<CrearHabito> {
               ),
 
               hint: const Text(
-                "Selecciona un stat",
+                "Selecciona una habilidad",
                 style: TextStyle(
                   color: Colors.white70,
                   fontSize: 14, // 🔹 un poco más pequeño
@@ -269,12 +286,9 @@ class _CrearHabitoState extends State<CrearHabito> {
             ),
             const SizedBox(height: 20),
 
-            const Text(
+            Text(
               "Hora (Obligatorio)",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, color: ColorHora),
             ),
             TextButton(
               onPressed: () async {
@@ -301,7 +315,9 @@ class _CrearHabitoState extends State<CrearHabito> {
             const SizedBox(height: 30),
             Center(
               child: ElevatedButton(
-                onPressed: _guardarHabito,
+                onPressed: () async {
+                  await _guardarHabito(refreshController);
+                },
                 child: const Text("Guardar Hábito"),
               ),
             ),

@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:neurohabits_app/conexiones/servicio_stats.dart';
+import 'package:neurohabits_app/conexiones/Controlador.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ListaHabitos extends StatelessWidget {
   final List<Map<String, dynamic>> habitos;
   final Function(Map<String, dynamic>)? onTap;
+  final RefreshController refreshController;
 
-  const ListaHabitos({super.key, required this.habitos, this.onTap});
+  const ListaHabitos({
+    super.key,
+    required this.habitos,
+    this.onTap,
+    required this.refreshController,
+  });
 
   void valiidarHabitos() {}
 
@@ -24,7 +33,11 @@ class ListaHabitos extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       itemCount: habitos.length,
       itemBuilder: (context, index) {
-        return HabitCard(data: habitos[index], onTap: onTap);
+        return HabitCard(
+          data: habitos[index],
+          onTap: onTap,
+          refreshController: refreshController,
+        );
       },
     );
   }
@@ -33,104 +46,167 @@ class ListaHabitos extends StatelessWidget {
 class HabitCard extends StatelessWidget {
   final Map<String, dynamic> data;
   final Function(Map<String, dynamic>)? onTap;
+  final VoidCallback? onRefresh;
+  final RefreshController refreshController;
 
-  const HabitCard({super.key, required this.data, this.onTap});
+  const HabitCard({
+    super.key,
+    required this.data,
+    this.onTap,
+    this.onRefresh,
+    required this.refreshController,
+  });
 
   String diasSemanaEnTexto(List dias) {
     if (dias.isEmpty) return "";
     return dias.join(", "); // "L, M, X"
   }
 
+  void cargarExp(
+    bool hecho,
+    String stat,
+    RefreshController refreshController,
+  ) async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+    if (hecho) {
+      await StatService.subirExp(stat, 10);
+    } else {
+      await StatService.bajarExp(stat, 10);
+    }
+    // bool nuevoValor = !(data["hechoHoy"] ?? false);
+
+    // // await FirebaseFirestore.instance
+    //     .collection("usuarios")
+    //     .doc(userId)
+    //     .collection("habitos")
+    //     .doc(data["id"])
+    //     .update({"hechoHoy": nuevoValor});
+
+    refreshController.refrescar();
+  }
+
   @override
   Widget build(BuildContext context) {
     String nombre = data["nombre"] ?? "Sin nombre";
     String stat = data["stat"] ?? "General";
-    bool repetirSiempre = data["repetirSiempre"] ?? true;
-    String? fechaFin = data["fechaFin"];
     String hora = data["hora"] ?? "";
-    bool notificacion = data["notificacion"] ?? false;
-    String fechaFinFormateada = "---";
-    if (!repetirSiempre && fechaFin != null) {
-      DateTime fecha = DateTime.parse(fechaFin);
-      fechaFinFormateada = DateFormat('dd/MM/yyyy').format(fecha);
-    }
-
-    return GestureDetector(
-      onTap: onTap != null ? () => onTap!(data) : null,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.14),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // NOMBRE + ICONO
-            Row(
+    String iconStat = "assets/iconos/${stat.toLowerCase()}.png";
+    bool hecho = false;
+    return AnimatedBuilder(
+      animation:
+          refreshController, // 🔥 Se reconstruye cuando refrescar() se llama
+      builder: (context, _) {
+        return GestureDetector(
+          onTap: onTap != null ? () => onTap!(data) : null,
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    nombre,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
+                GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  onTap: () {
+                    hecho = !hecho;
+                    cargarExp(hecho, stat, refreshController);
+                  },
+                  child: Container(
+                    width: 28,
+                    height: 28,
+                    margin: const EdgeInsets.only(right: 14, bottom: 14),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: (data["hechoHoy"] ?? false)
+                          ? Colors.greenAccent
+                          : Colors.transparent,
+                      border: Border.all(
+                        color: (data["hechoHoy"] ?? false)
+                            ? Colors.greenAccent
+                            : Colors.white70,
+                        width: 2.5,
+                      ),
                     ),
                   ),
                 ),
+
+                // ----------- ICONO DEL STAT (IZQUIERDA) ------------
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: Colors.white.withOpacity(0.20),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset(
+                      iconStat,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) {
+                        return const Icon(
+                          Icons.star,
+                          color: Color.fromARGB(255, 223, 30, 30),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+
+                const SizedBox(width: 12),
+
+                // ----------------- NOMBRE + STAT (CENTRO) -----------------
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // nombre del hábito
+                      Text(
+                        nombre,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 4),
+
+                      // stat debajo
+                      Text(
+                        stat,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withOpacity(0.85),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // ----------------- HORA + ICONO (DERECHA) -----------------
+                Column(
+                  children: [
+                    Icon(
+                      Icons.access_time,
+                      color: Colors.white.withOpacity(0.8),
+                      size: 20,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      hora,
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ],
+                ),
               ],
             ),
-
-            const SizedBox(height: 8),
-
-            // STAT
-            Text(
-              "Stat: $stat",
-              style: TextStyle(color: Colors.white.withOpacity(0.9)),
-            ),
-
-            const SizedBox(height: 6),
-
-            // FECHA FIN O SE REPITE SIEMPRE
-            Text(
-              repetirSiempre
-                  ? "∞ Se repite para siempre"
-                  : "Hasta el $fechaFinFormateada",
-              style: TextStyle(color: Colors.white.withOpacity(0.9)),
-            ),
-
-            const SizedBox(height: 6),
-
-            // HORA
-            Text(
-              "Hora: $hora",
-              style: TextStyle(color: Colors.white.withOpacity(0.9)),
-            ),
-
-            const SizedBox(height: 6),
-
-            // NOTIFICACIÓN
-            Row(
-              children: [
-                Icon(
-                  notificacion
-                      ? Icons.notifications_active
-                      : Icons.notifications_off,
-                  color: notificacion ? Colors.greenAccent : Colors.redAccent,
-                  size: 18,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  notificacion ? "Con notificación" : "Sin notificación",
-                  style: TextStyle(color: Colors.white.withOpacity(0.9)),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

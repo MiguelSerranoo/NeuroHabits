@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:neurohabits_app/conexiones/Controlador.dart';
 import 'package:neurohabits_app/paginas/pagina_inicioSesion.dart';
 import 'package:neurohabits_app/paginas/pagina_personaje.dart';
 import 'package:neurohabits_app/paginas/pagina_principal.dart';
@@ -56,7 +57,8 @@ class MyApp extends StatelessWidget {
         '/CheckPersonaje': (context) => const CheckPersonajePage(),
         '/Principal': (context) => const PantallaInicio(title: 'Principal'),
         '/Perfil': (context) => const Perfil(),
-        '/CrearHabitos': (context) => CrearHabito(onSaved: () {}),
+        '/CrearHabitos': (context) =>
+            CrearHabito(onSaved: () {}, refreshController: RefreshController()),
         '/CrearPersonaje': (context) => const CrearPersonajePage(),
         '/PersonajeCompleto': (context) => const PaginaPersonaje(),
       },

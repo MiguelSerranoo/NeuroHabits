@@ -1,46 +1,46 @@
 class StatModel {
   final String nombre; // ejemplo: "salud"
   int nivel; // nivel actual
-  int experiencia; // xp acumulada
-  int experienciaNecesaria; // xp para subir de nivel
+  int exp; // xp acumulada
+  int expNecesaria; // xp para subir de nivel
 
   StatModel({
     required this.nombre,
     this.nivel = 1,
-    this.experiencia = 0,
-    this.experienciaNecesaria = 100,
+    this.exp = 0,
+    this.expNecesaria = 100,
   });
 
   // 👉 Añadir experiencia
   void subirExperiencia(int cantidad) {
-    experiencia += cantidad;
+    exp += cantidad;
 
     // Si supera el límite → subir nivel
-    while (experiencia >= experienciaNecesaria) {
-      experiencia -= experienciaNecesaria; // xp sobrante
+    while (exp >= expNecesaria) {
+      exp -= expNecesaria; // xp sobrante
       nivel++; // subir nivel
-      experienciaNecesaria = _calcularNuevaExperienciaNecesaria();
+      expNecesaria = _calcularNuevaExperienciaNecesaria();
     }
   }
 
   // 👉 Quitar experiencia (por fallar hábitos)
   void quitarExperiencia(int cantidad) {
-    experiencia -= cantidad;
+    exp -= cantidad;
 
     // Si baja de cero → bajar nivel
-    while (experiencia < 0 && nivel > 1) {
+    while (exp < 0 && nivel > 1) {
       nivel--;
-      experienciaNecesaria = _calcularNuevaExperienciaNecesaria();
-      experiencia += experienciaNecesaria;
+      expNecesaria = _calcularNuevaExperienciaNecesaria();
+      exp += expNecesaria;
     }
 
     // evitar valores negativos
-    if (experiencia < 0) experiencia = 0;
+    if (exp < 0) exp = 0;
   }
 
   // Fórmula para subir experiencia necesaria por nivel
   int _calcularNuevaExperienciaNecesaria() {
-    return (experienciaNecesaria * 1.2).round(); // +20% por nivel
+    return (expNecesaria * 1.2).round(); // +20% por nivel
   }
 
   // Convertir a mapa para subir a Firestore
@@ -48,8 +48,8 @@ class StatModel {
     return {
       "nombre": nombre,
       "nivel": nivel,
-      "exp": experiencia,
-      "expNecesaria": experienciaNecesaria,
+      "exp": exp,
+      "expNecesaria": expNecesaria,
     };
   }
 
@@ -58,8 +58,8 @@ class StatModel {
     return StatModel(
       nombre: map["nombre"],
       nivel: map["nivel"] ?? 1,
-      experiencia: map["exp"] ?? 0,
-      experienciaNecesaria: map["expNecesaria"] ?? 100,
+      exp: map["exp"] ?? 0,
+      expNecesaria: map["expNecesaria"] ?? 100,
     );
   }
 }
