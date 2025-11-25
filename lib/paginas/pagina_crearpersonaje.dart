@@ -33,7 +33,6 @@ class _CrearPersonajePageState extends State<CrearPersonajePage> {
         });
     await StatService.guardarStatsIniciales(seleccionados);
 
-    // Ir a pantalla principal
     Navigator.pushReplacementNamed(context, "/Principal");
   }
 
@@ -87,7 +86,6 @@ class _CrearPersonajePageState extends State<CrearPersonajePage> {
 
             const SizedBox(height: 25),
 
-            // AVATARES
             const Text(
               "Elige un avatar",
               style: TextStyle(color: Colors.white70, fontSize: 16),
@@ -138,7 +136,6 @@ class _CrearPersonajePageState extends State<CrearPersonajePage> {
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white, fontSize: 18),
             ),
-            // LISTA DE STATS
             Expanded(
               child: ListView.builder(
                 itemCount: statsDisponibles.length,
@@ -202,7 +199,6 @@ class _CrearPersonajePageState extends State<CrearPersonajePage> {
               ),
             ),
 
-            // BOTÓN GUARDAR
             Padding(
               padding: const EdgeInsets.all(20),
               child: ElevatedButton(

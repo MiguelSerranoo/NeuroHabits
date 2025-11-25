@@ -15,7 +15,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 🔹 Forzar modo oscuro globalmente
   await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,23 +30,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      // HOME según si hay usuario o no
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
-          // Cargando estado inicial
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Scaffold(
               body: Center(child: CircularProgressIndicator()),
             );
           }
 
-          // No hay usuario → ir a login
           if (!snapshot.hasData) {
             return const InicioSesion();
           }
 
-          // Hay usuario → comprobar si tiene personaje
           return const CheckPersonajePage();
         },
       ),
@@ -65,8 +60,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// title: 'NeuroHabits',
-//       themeMode: ThemeMode.dark,
-
-//       home: const InicioSesion(),

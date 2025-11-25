@@ -137,7 +137,6 @@ class _CrearHabitoState extends State<CrearHabito> {
             DropdownButton2<String>(
               isExpanded: true,
 
-              // 🔽 TAMAÑO Y ESTILO DEL BOTÓN CERRADO
               buttonStyleData: ButtonStyleData(
                 height: 42,
                 width: double.infinity,
@@ -145,40 +144,27 @@ class _CrearHabitoState extends State<CrearHabito> {
                 decoration: BoxDecoration(
                   color: Colors.transparent,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: Colors.grey.shade500, // 🔹 borde más fino y gris
-                    width: 0.8,
-                  ),
+                  border: Border.all(color: Colors.grey.shade500, width: 0.8),
                 ),
               ),
 
-              // 🔽 ESTILO DEL MENÚ DESPLEGADO
               dropdownStyleData: DropdownStyleData(
-                maxHeight: 150, // 🔹 menos alto
-                width: 200, // 🔹 más pequeño horizontalmente
+                maxHeight: 150,
+                width: 200,
                 decoration: BoxDecoration(
                   color: Colors.black,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: Colors.grey.shade600, // 🔹 borde gris sutil
-                    width: 0.8,
-                  ),
+                  border: Border.all(color: Colors.grey.shade600, width: 0.8),
                 ),
-                offset: const Offset(0, -5), // 🔹 lo acerca más al botón
+                offset: const Offset(0, -5),
               ),
 
               hint: const Text(
                 "Selecciona una habilidad",
-                style: TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14, // 🔹 un poco más pequeño
-                ),
+                style: TextStyle(color: Colors.white70, fontSize: 14),
               ),
 
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 15, // 🔹 tamaño controlado
-              ),
+              style: const TextStyle(color: Colors.white, fontSize: 15),
 
               value: statSeleccionado,
 

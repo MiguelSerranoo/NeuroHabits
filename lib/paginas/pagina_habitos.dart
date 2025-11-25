@@ -59,7 +59,7 @@ class HabitCard extends StatelessWidget {
 
   String diasSemanaEnTexto(List dias) {
     if (dias.isEmpty) return "";
-    return dias.join(", "); // "L, M, X"
+    return dias.join(", ");
   }
 
   void cargarExp(
@@ -93,8 +93,7 @@ class HabitCard extends StatelessWidget {
     String iconStat = "assets/iconos/${stat.toLowerCase()}.png";
     bool hecho = false;
     return AnimatedBuilder(
-      animation:
-          refreshController, // 🔥 Se reconstruye cuando refrescar() se llama
+      animation: refreshController,
       builder: (context, _) {
         return GestureDetector(
           onTap: onTap != null ? () => onTap!(data) : null,
@@ -133,7 +132,6 @@ class HabitCard extends StatelessWidget {
                   ),
                 ),
 
-                // ----------- ICONO DEL STAT (IZQUIERDA) ------------
                 Container(
                   width: 42,
                   height: 42,
@@ -158,12 +156,10 @@ class HabitCard extends StatelessWidget {
 
                 const SizedBox(width: 12),
 
-                // ----------------- NOMBRE + STAT (CENTRO) -----------------
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // nombre del hábito
                       Text(
                         nombre,
                         style: const TextStyle(
@@ -175,7 +171,6 @@ class HabitCard extends StatelessWidget {
 
                       const SizedBox(height: 4),
 
-                      // stat debajo
                       Text(
                         stat,
                         style: TextStyle(
@@ -187,7 +182,6 @@ class HabitCard extends StatelessWidget {
                   ),
                 ),
 
-                // ----------------- HORA + ICONO (DERECHA) -----------------
                 Column(
                   children: [
                     Icon(

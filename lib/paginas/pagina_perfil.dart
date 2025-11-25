@@ -32,7 +32,6 @@ class _PerfilState extends State<Perfil> {
           children: [
             const SizedBox(height: 40),
 
-            // 🔹 Foto de perfil
             ClipOval(
               child: Container(
                 width: 110,
@@ -49,7 +48,6 @@ class _PerfilState extends State<Perfil> {
 
             const SizedBox(height: 20),
 
-            // 🔹 Nombre
             Text(
               'nombre',
               // nombre ?? "Usuario",
@@ -62,7 +60,6 @@ class _PerfilState extends State<Perfil> {
 
             const SizedBox(height: 8),
 
-            // 🔹 Email
             Text(
               'email',
               // email ?? "Sin correo",
@@ -71,11 +68,8 @@ class _PerfilState extends State<Perfil> {
 
             const SizedBox(height: 40),
 
-            // 🔹 Botón editar perfil
             ElevatedButton(
-              onPressed: () {
-                // Aquí pondrás la edición de perfil
-              },
+              onPressed: () {},
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.purple[700],
                 padding: const EdgeInsets.symmetric(
@@ -94,7 +88,6 @@ class _PerfilState extends State<Perfil> {
 
             const SizedBox(height: 20),
 
-            // 🔹 Botón cerrar sesión
             OutlinedButton(
               onPressed: () async {
                 await AuthService.logout();

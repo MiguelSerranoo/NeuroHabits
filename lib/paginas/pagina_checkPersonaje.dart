@@ -30,10 +30,8 @@ class _CheckPersonajePageState extends State<CheckPersonajePage> {
         .get();
 
     if (snap.docs.isEmpty) {
-      // No tiene stats → Crear Personaje
       Navigator.pushReplacementNamed(context, '/CrearPersonaje');
     } else {
-      // Ya tiene personaje → Pantalla principal
       Navigator.pushReplacementNamed(context, '/Principal');
     }
   }

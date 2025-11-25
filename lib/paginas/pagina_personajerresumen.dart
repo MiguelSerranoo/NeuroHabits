@@ -41,8 +41,7 @@ class PerfilCompacto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation:
-          refreshController, // 🔥 Se reconstruye cuando refrescar() se llama
+      animation: refreshController,
       builder: (context, _) {
         return Container(
           padding: const EdgeInsets.all(14),
@@ -52,7 +51,6 @@ class PerfilCompacto extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // ------------------ LADO IZQUIERDO (Avatar + nombre) ------------------
               FutureBuilder<Map<String, dynamic>>(
                 future: cargarPersonaje(),
                 builder: (context, snapshot) {
@@ -91,7 +89,6 @@ class PerfilCompacto extends StatelessWidget {
 
               const SizedBox(width: 20),
 
-              // ------------------ LADO DERECHO (Stats + Niveles) ------------------
               Expanded(
                 child: FutureBuilder<List<Map<String, dynamic>>>(
                   future: cargarStats(),
@@ -116,7 +113,6 @@ class PerfilCompacto extends StatelessWidget {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // TITLE
                               Text(
                                 "$nombre — Nivel $nivel",
                                 style: const TextStyle(
@@ -125,7 +121,6 @@ class PerfilCompacto extends StatelessWidget {
                                 ),
                               ),
 
-                              // PROGRESS BAR
                               Container(
                                 height: 8,
                                 decoration: BoxDecoration(
@@ -144,7 +139,6 @@ class PerfilCompacto extends StatelessWidget {
                                 ),
                               ),
 
-                              // EXP TEXT
                               Text(
                                 "$exp / $expNecesaria EXP",
                                 style: TextStyle(

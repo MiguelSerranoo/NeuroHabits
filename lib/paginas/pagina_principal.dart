@@ -60,13 +60,11 @@ class _PantallaInicioState extends State<PantallaInicio> {
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.12,
 
-              // 🔹 Padding SOLO para la fila superior
               child: Padding(
                 padding: const EdgeInsets.only(left: 20, right: 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // 🔹 Fecha
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -91,7 +89,6 @@ class _PantallaInicioState extends State<PantallaInicio> {
                       ],
                     ),
 
-                    // 🔹 Avatar
                     GestureDetector(
                       onTap: () {
                         Navigator.pushNamed(context, '/Perfil');
@@ -118,7 +115,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
               onTap: () => Navigator.pushNamed(context, "/PerfilCompleto"),
               child: Container(
                 height: MediaQuery.of(context).size.height * 0.24,
-                width: MediaQuery.of(context).size.width, // 100% real
+                width: MediaQuery.of(context).size.width,
                 margin: const EdgeInsets.symmetric(horizontal: 0),
                 child: PerfilCompacto(
                   onRefresh: refrescar,
@@ -128,7 +125,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
             ),
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.111,
-              width: MediaQuery.of(context).size.width, // 100% real
+              width: MediaQuery.of(context).size.width,
               child: CalendarioSemanal(
                 onDiaSeleccionado: (dia) {
                   setState(() => hoy = dia);
@@ -136,8 +133,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
               ),
             ),
             AnimatedBuilder(
-              animation:
-                  refreshController, // 🔥 Se reconstruye cuando refrescar() se llama
+              animation: refreshController,
               builder: (context, _) {
                 return SizedBox(
                   height: MediaQuery.of(context).size.height * 0.44,

@@ -67,13 +67,12 @@ class _CalendarioSemanalState extends State<CalendarioSemanal> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.15, // un poco más alto
+      height: MediaQuery.of(context).size.height * 0.15,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // 🔹 TU TEXTO CENTRADO ARRIBA
           Text(
-            mesActual, // ⭐️ Cambia aquí tu título
+            mesActual,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -84,7 +83,6 @@ class _CalendarioSemanalState extends State<CalendarioSemanal> {
 
           const SizedBox(height: 5),
 
-          // 🔹 EL CALENDARIO (PageView builder)
           Expanded(
             child: PageView.builder(
               controller: controller,
@@ -95,7 +93,6 @@ class _CalendarioSemanalState extends State<CalendarioSemanal> {
                     Duration(days: (index - 1000) * 7),
                   );
 
-                  // 🔹 Actualizar el mes mostrado arriba
                   mesActual = obtenerNombreMes(nuevaSemana);
                 });
               },
@@ -111,7 +108,6 @@ class _CalendarioSemanalState extends State<CalendarioSemanal> {
                     String nombre = diasSemana[dia.weekday]!;
                     bool esHoy = false;
 
-                    // 🔹 Si es la semana actual → marcar hoy
                     if (estaEnSemanaActual(dia)) {
                       DateTime hoy = DateTime.now();
                       esHoy =
@@ -120,7 +116,6 @@ class _CalendarioSemanalState extends State<CalendarioSemanal> {
                           dia.year == hoy.year;
                     }
 
-                    // 🔹 Si el usuario seleccionó manualmente un día
                     bool esSeleccionado =
                         dia.year == seleccionado.year &&
                         dia.month == seleccionado.month &&

@@ -20,7 +20,6 @@ void mostrarPopupHabito(BuildContext context, Map<String, dynamic> h) {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // TÍTULO
               Text(
                 h["nombre"] ?? "Hábito",
                 style: const TextStyle(
@@ -63,7 +62,6 @@ void mostrarPopupHabito(BuildContext context, Map<String, dynamic> h) {
   );
 }
 
-// WIDGET para una fila de texto bonita
 Widget _info(String titulo, String? valor) {
   return Padding(
     padding: const EdgeInsets.only(bottom: 10),

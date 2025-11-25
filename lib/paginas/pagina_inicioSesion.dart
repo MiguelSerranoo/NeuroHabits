@@ -27,11 +27,9 @@ class _InicioSesionState extends State<InicioSesion>
         _passCtrl.text.trim(),
       );
       if (user != null) {
-        // Ir a comprobar si tiene personaje
         Navigator.pushReplacementNamed(context, '/CheckPersonaje');
       }
     } catch (e) {
-      // aquí puedes mostrar un snackbar con el error
       print("Error login: $e");
     }
   }
@@ -44,7 +42,6 @@ class _InicioSesionState extends State<InicioSesion>
       );
       if (user != null &&
           _passCtrl.text.trim() == _passRepeatCtrl.text.trim()) {
-        // Registro nuevo → directo a CrearPersonaje
         Navigator.pushReplacementNamed(context, '/CrearPersonaje');
       }
     } catch (e) {
@@ -85,21 +82,18 @@ class _InicioSesionState extends State<InicioSesion>
       backgroundColor: Colors.black,
       body: Column(
         children: [
-          // ⚡ Barra de estado negra con iconos blancos
           AnnotatedRegion<SystemUiOverlayStyle>(
             value: const SystemUiOverlayStyle(
-              statusBarColor: Colors.black, // fondo negro sólido
-              statusBarIconBrightness:
-                  Brightness.light, // iconos blancos Android
-              statusBarBrightness: Brightness.dark, // iconos blancos iOS
+              statusBarColor: Colors.black,
+              statusBarIconBrightness: Brightness.light,
+              statusBarBrightness: Brightness.dark,
             ),
             child: Container(
               height: MediaQuery.of(context).padding.top,
-              color: Colors.black, // mismo color que la barra
+              color: Colors.black,
             ),
           ),
 
-          // ⚡ Resto de la UI
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(top: 100),
@@ -107,7 +101,6 @@ class _InicioSesionState extends State<InicioSesion>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // 🔹 Texto animado moderno "NeuroHabits"
                     ShaderMask(
                       shaderCallback: (Rect bounds) {
                         return const LinearGradient(
@@ -131,7 +124,6 @@ class _InicioSesionState extends State<InicioSesion>
                       ),
                     ),
 
-                    // 🔹 Campos de login (ocultos temporalmente)
                     Column(
                       children: [
                         const SizedBox(height: 30),
