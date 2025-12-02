@@ -88,6 +88,24 @@ class _PantallaInicioState extends State<PantallaInicio> {
                         ),
                       ],
                     ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, '/Ranking');
+                      },
+                      child: Container(
+                        width: 45,
+                        height: 45,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(color: Colors.white70, width: 2),
+                        ),
+                        child: const Icon(
+                          Icons.leaderboard, // ← icono de ranking
+                          color: Colors.white,
+                          size: 26,
+                        ),
+                      ),
+                    ),
 
                     GestureDetector(
                       onTap: () {
@@ -114,7 +132,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
             GestureDetector(
               onTap: () => Navigator.pushNamed(context, "/PerfilCompleto"),
               child: Container(
-                height: MediaQuery.of(context).size.height * 0.24,
+                height: MediaQuery.of(context).size.height * 0.27,
                 width: MediaQuery.of(context).size.width,
                 margin: const EdgeInsets.symmetric(horizontal: 0),
                 child: PerfilCompacto(
@@ -136,7 +154,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
               animation: refreshController,
               builder: (context, _) {
                 return SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.44,
+                  height: MediaQuery.of(context).size.height * 0.41,
                   width: MediaQuery.of(context).size.width,
 
                   child: Stack(

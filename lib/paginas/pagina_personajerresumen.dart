@@ -38,126 +38,207 @@ class PerfilCompacto extends StatelessWidget {
     return snapshot.docs.map((d) => d.data()).toList();
   }
 
+  Future<Map<String, dynamic>> cargarTodo() async {
+    final personaje = await cargarPersonaje();
+    final stats = await cargarStats();
+
+    // Calcular media
+    int mediaNivel = 0;
+    if (stats.isNotEmpty) {
+      final sumaNiveles = stats.fold<int>(0, (prev, stat) {
+        final nivel = stat["nivel"];
+        if (nivel == null) return prev;
+        return prev + (nivel as num).toInt();
+      });
+
+      mediaNivel = (sumaNiveles / stats.length).round();
+    }
+
+    return {"personaje": personaje, "stats": stats, "mediaNivel": mediaNivel};
+  }
+
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: refreshController,
       builder: (context, _) {
-        return Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.09),
-            borderRadius: BorderRadius.circular(18),
-          ),
-          child: Row(
-            children: [
-              FutureBuilder<Map<String, dynamic>>(
-                future: cargarPersonaje(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+        return FutureBuilder<Map<String, dynamic>>(
+          future: cargarTodo(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-                  final personaje = snapshot.data!;
-                  final avatar = personaje["avatar"] ?? "";
-                  final nombre = personaje["nombre"] ?? "Sin nombre";
+            final personaje = snapshot.data!["personaje"];
+            final stats = snapshot.data!["stats"] as List<Map<String, dynamic>>;
+            final mediaNivel = snapshot.data!["mediaNivel"] as int;
 
-                  return Column(
+            final avatar = personaje["avatar"] ?? "";
+            final nombre = personaje["nombre"] ?? "Sin nombre";
+
+            // --- División en columnas ---
+            final primeraColumna = stats.length > 3
+                ? stats.sublist(0, 3)
+                : stats;
+            final segundaColumna = stats.length > 3 ? stats.sublist(3) : [];
+
+            return Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.10),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: Colors.white.withOpacity(0.2)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // ==== Avatar y Datos del personaje ====
+                  Column(
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(16),
                         child: Image.asset(
                           "assets/avatares/$avatar",
-                          width: 80,
-                          height: 80,
+                          width: 85,
+                          height: 85,
                           fit: BoxFit.cover,
                         ),
                       ),
-                      const SizedBox(height: 8),
+
+                      const SizedBox(height: 10),
+
                       Text(
                         nombre,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 18,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+
+                      const SizedBox(height: 6),
+
+                      // ✔ Nivel debajo del nombre
+                      Text(
+                        "Nivel: $mediaNivel",
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.85),
+                          fontSize: 14,
+                        ),
+                      ),
                     ],
-                  );
-                },
-              ),
+                  ),
 
-              const SizedBox(width: 20),
+                  const SizedBox(width: 30),
 
-              Expanded(
-                child: FutureBuilder<List<Map<String, dynamic>>>(
-                  future: cargarStats(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    final stats = snapshot.data!;
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: stats.map((stat) {
-                        final nombre = stat["nombre"];
-                        final nivel = stat["nivel"];
-                        final exp = stat["exp"];
-                        final expNecesaria = stat["expNecesaria"];
-
-                        final progreso = exp / expNecesaria;
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 14),
+                  // ==== Habilidades ====
+                  Expanded(
+                    child: Row(
+                      children: [
+                        // ---- Primera columna de habilidades ----
+                        Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "$nombre — Nivel $nivel",
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                ),
-                              ),
-
-                              Container(
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: Colors.white12,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: FractionallySizedBox(
-                                  alignment: Alignment.centerLeft,
-                                  widthFactor: progreso,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.purpleAccent,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                  ),
-                                ),
-                              ),
-
-                              Text(
-                                "$exp / $expNecesaria EXP",
-                                style: TextStyle(
-                                  color: Colors.white.withOpacity(0.8),
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
+                            children: primeraColumna.map((stat) {
+                              return _buildStat(stat);
+                            }).toList(),
                           ),
-                        );
-                      }).toList(),
-                    );
-                  },
+                        ),
+
+                        if (segundaColumna.isNotEmpty)
+                          const SizedBox(
+                            width: 18,
+                          ), // separación entre columnas
+
+                        if (segundaColumna.isNotEmpty)
+                          // ---- Segunda columna ----
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: segundaColumna.map((stat) {
+                                return _buildStat(stat);
+                              }).toList(),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  // ==== Widget que dibuja cada habilidad ====
+  Widget _buildStat(Map<String, dynamic> stat) {
+    final nombre = stat["nombre"];
+    final nivel = stat["nivel"];
+    final exp = stat["exp"];
+    final expNecesaria = stat["expNecesaria"];
+    final progreso = exp / expNecesaria;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12), // un poco más grande
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Título + nivel
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                nombre,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              Text(
+                "Nv $nivel",
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.9),
+                  fontSize: 13,
                 ),
               ),
             ],
           ),
-        );
-      },
+
+          const SizedBox(height: 3),
+
+          // Barra EXP
+          Container(
+            height: 6,
+            decoration: BoxDecoration(
+              color: Colors.white12,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: FractionallySizedBox(
+              alignment: Alignment.centerLeft,
+              widthFactor: progreso,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.purpleAccent,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 2),
+
+          Text(
+            "$exp / $expNecesaria EXP",
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.7),
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

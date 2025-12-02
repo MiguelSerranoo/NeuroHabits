@@ -11,6 +11,7 @@ import 'firebase_options.dart';
 import 'package:neurohabits_app/paginas/pagina_crearpersonaje.dart';
 import 'package:neurohabits_app/paginas/pagina_checkPersonaje.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:neurohabits_app/paginas/pagina_ranking.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,6 +57,7 @@ class MyApp extends StatelessWidget {
             CrearHabito(onSaved: () {}, refreshController: RefreshController()),
         '/CrearPersonaje': (context) => const CrearPersonajePage(),
         '/PersonajeCompleto': (context) => const PaginaPersonaje(),
+        '/Ranking': (context) => const ComparacionPage(),
       },
     );
   }
