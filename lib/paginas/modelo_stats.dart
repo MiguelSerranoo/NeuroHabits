@@ -8,7 +8,7 @@ class StatModel {
     required this.nombre,
     this.nivel = 1,
     this.exp = 0,
-    this.expNecesaria = 100,
+    this.expNecesaria = 30,
   });
 
   void subirExperiencia(int cantidad) {
@@ -51,7 +51,7 @@ class StatModel {
       nombre: map["nombre"],
       nivel: map["nivel"] ?? 1,
       exp: map["exp"] ?? 0,
-      expNecesaria: map["expNecesaria"] ?? 100,
+      expNecesaria: map["expNecesaria"] ?? 30,
     );
   }
 }

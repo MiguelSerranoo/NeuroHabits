@@ -140,37 +140,18 @@ class ComparacionPage extends StatelessWidget {
     String miUid,
   ) async {
     try {
-      print("🔍 === INICIO DEBUG ===");
-      print("🔍 Mi UID: $miUid");
-
-      // Ver todas las colecciones
       final usuariosSnapshot = await FirebaseFirestore.instance
           .collection("usuarios")
           .get();
 
-      print(
-        "📊 Total de documentos en colección 'usuarios': ${usuariosSnapshot.docs.length}",
-      );
-
       if (usuariosSnapshot.docs.isEmpty) {
-        print("❌ ¡La colección 'usuarios' está VACÍA!");
         return [];
-      }
-
-      // Listar todos los UIDs encontrados
-      print("📋 UIDs encontrados:");
-      for (var doc in usuariosSnapshot.docs) {
-        print("   - ${doc.id}");
       }
 
       List<Map<String, dynamic>> listaUsuarios = [];
 
       for (var userDoc in usuariosSnapshot.docs) {
         final uid = userDoc.id;
-        print("\n👤 === Procesando usuario: $uid ===");
-
-        // Ver qué subcolecciones tiene
-        print("   🔍 Buscando personaje/perfil...");
 
         final perfilDoc = await FirebaseFirestore.instance
             .collection("usuarios")
@@ -179,41 +160,17 @@ class ComparacionPage extends StatelessWidget {
             .doc("perfil")
             .get();
 
-        print("   📄 Documento perfil existe: ${perfilDoc.exists}");
-
-        if (perfilDoc.exists) {
-          print("   ✅ Datos del perfil: ${perfilDoc.data()}");
-        } else {
-          print("   ❌ NO EXISTE el documento perfil");
-
-          // Ver qué hay en la subcolección personaje
-          final personajeSnap = await FirebaseFirestore.instance
-              .collection("usuarios")
-              .doc(uid)
-              .collection("personaje")
-              .get();
-
-          print(
-            "   📊 Documentos en subcolección 'personaje': ${personajeSnap.docs.length}",
-          );
-          for (var doc in personajeSnap.docs) {
-            print("      - ${doc.id}");
-          }
+        if (!perfilDoc.exists) {
           continue;
         }
 
-        // Cargar stats
-        print("   🔍 Buscando stats...");
         final statsSnapshot = await FirebaseFirestore.instance
             .collection("usuarios")
             .doc(uid)
             .collection("stats")
             .get();
 
-        print("   📈 Total stats encontradas: ${statsSnapshot.docs.length}");
-
         final stats = statsSnapshot.docs.map((doc) {
-          print("      - Stat: ${doc.id} -> ${doc.data()}");
           return {
             "nombre": doc.data()["nombre"] ?? doc.id,
             "nivel": doc.data()["nivel"] ?? 0,
@@ -241,21 +198,15 @@ class ComparacionPage extends StatelessWidget {
           'stats': stats,
           'esMio': uid == miUid,
         });
-
-        print("   ✅ Usuario añadido exitosamente");
       }
-
-      print("\n🎉 === FIN DEBUG ===");
-      print("🎉 Total usuarios válidos agregados: ${listaUsuarios.length}");
 
       listaUsuarios.sort(
         (a, b) => b['nivelPromedio'].compareTo(a['nivelPromedio']),
       );
 
       return listaUsuarios;
-    } catch (e, stackTrace) {
-      print("💥 ERROR CRÍTICO: $e");
-      print("📍 Stack trace: $stackTrace");
+    } catch (e) {
+      print("Error crítico: $e");
       return [];
     }
   }
@@ -441,7 +392,6 @@ class ComparacionPage extends StatelessWidget {
     String otroUid,
     Map<String, dynamic> otroUsuario,
   ) async {
-    // Mostrar loading
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -450,18 +400,14 @@ class ComparacionPage extends StatelessWidget {
     );
 
     try {
-      // Cargar mis datos
       final misDatos = await _cargarDatosUsuario(miUid);
-
-      // Cerrar loading
-      if (context.mounted) Navigator.pop(context);
+      Navigator.pop(context);
 
       if (misDatos == null) {
         _mostrarError(context, "No se encontró tu personaje");
         return;
       }
 
-      // Usar los datos ya cargados del otro usuario
       final otrosDatos = {
         'personaje': {
           'nombre': otroUsuario['nombre'],
@@ -470,7 +416,6 @@ class ComparacionPage extends StatelessWidget {
         'stats': otroUsuario['stats'],
       };
 
-      // Mostrar popup de comparación
       if (context.mounted) {
         showDialog(
           context: context,
@@ -543,7 +488,7 @@ class ComparacionPage extends StatelessWidget {
   }
 }
 
-// POPUP DE COMPARACIÓN
+// POPUP DE COMPARACIÓN MEJORADO
 class ComparacionPopup extends StatelessWidget {
   final Map<String, dynamic> miPersonaje;
   final List<Map<String, dynamic>> misStats;
@@ -560,6 +505,7 @@ class ComparacionPopup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Crear mapas de stats por nombre
     final mias = <String, Map<String, dynamic>>{};
     for (var s in misStats) {
       final nombre = s["nombre"];
@@ -572,7 +518,9 @@ class ComparacionPopup extends StatelessWidget {
       if (nombre != null) suyas[nombre] = s;
     }
 
-    final habilidades = {...mias.keys, ...suyas.keys}.toList()..sort();
+    // SOLO HABILIDADES EN COMÚN
+    final habilidadesEnComun =
+        mias.keys.where((hab) => suyas.containsKey(hab)).toList()..sort();
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -601,19 +549,20 @@ class ComparacionPopup extends StatelessWidget {
             _buildPersonajesRow(),
             const Divider(color: Colors.white24, height: 1),
             Flexible(
-              child: habilidades.isEmpty
-                  ? _buildEmptyState()
+              child: habilidadesEnComun.isEmpty
+                  ? _buildSinHabilidadesComunes()
                   : ListView.builder(
                       shrinkWrap: true,
                       padding: const EdgeInsets.all(16),
-                      itemCount: habilidades.length,
+                      itemCount: habilidadesEnComun.length,
                       itemBuilder: (context, index) {
-                        final hab = habilidades[index];
-                        return _buildStatRow(hab, mias[hab], suyas[hab]);
+                        final hab = habilidadesEnComun[index];
+                        return _buildStatRow(hab, mias[hab]!, suyas[hab]!);
                       },
                     ),
             ),
-            _buildResumenGeneral(mias, suyas),
+            if (habilidadesEnComun.isNotEmpty)
+              _buildResumenGeneral(mias, suyas, habilidadesEnComun),
             _buildCloseButton(context),
           ],
         ),
@@ -642,7 +591,7 @@ class ComparacionPopup extends StatelessWidget {
           const SizedBox(width: 12),
           const Expanded(
             child: Text(
-              "Comparación de Personajes",
+              "Habilidades en Común",
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
@@ -768,26 +717,24 @@ class ComparacionPopup extends StatelessWidget {
 
   Widget _buildStatRow(
     String habilidad,
-    Map<String, dynamic>? miStat,
-    Map<String, dynamic>? suStat,
+    Map<String, dynamic> miStat,
+    Map<String, dynamic> suStat,
   ) {
-    final miNivel = miStat?["nivel"] ?? 0;
-    final suNivel = suStat?["nivel"] ?? 0;
+    final miNivel = miStat["nivel"] ?? 0;
+    final suNivel = suStat["nivel"] ?? 0;
 
     Color color = Colors.white70;
     IconData? icon;
 
-    if (miNivel > 0 && suNivel > 0) {
-      if (miNivel > suNivel) {
-        color = Colors.greenAccent;
-        icon = Icons.arrow_upward;
-      } else if (miNivel < suNivel) {
-        color = Colors.redAccent;
-        icon = Icons.arrow_downward;
-      } else {
-        color = Colors.orangeAccent;
-        icon = Icons.drag_handle;
-      }
+    if (miNivel > suNivel) {
+      color = Colors.greenAccent;
+      icon = Icons.arrow_upward;
+    } else if (miNivel < suNivel) {
+      color = Colors.redAccent;
+      icon = Icons.arrow_downward;
+    } else {
+      color = Colors.orangeAccent;
+      icon = Icons.drag_handle;
     }
 
     final diferencia = (miNivel - suNivel).abs();
@@ -819,7 +766,7 @@ class ComparacionPopup extends StatelessWidget {
                   ),
                 ),
               ),
-              if (miNivel > 0 && suNivel > 0 && diferencia > 0)
+              if (diferencia > 0)
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
@@ -891,23 +838,22 @@ class ComparacionPopup extends StatelessWidget {
   Widget _buildResumenGeneral(
     Map<String, Map<String, dynamic>> mias,
     Map<String, Map<String, dynamic>> suyas,
+    List<String> habilidadesEnComun,
   ) {
     int ventajas = 0;
     int desventajas = 0;
     int empates = 0;
 
-    for (var hab in {...mias.keys, ...suyas.keys}) {
+    for (var hab in habilidadesEnComun) {
       final miNivel = mias[hab]?["nivel"] ?? 0;
       final suNivel = suyas[hab]?["nivel"] ?? 0;
 
-      if (miNivel > 0 && suNivel > 0) {
-        if (miNivel > suNivel) {
-          ventajas++;
-        } else if (miNivel < suNivel) {
-          desventajas++;
-        } else {
-          empates++;
-        }
+      if (miNivel > suNivel) {
+        ventajas++;
+      } else if (miNivel < suNivel) {
+        desventajas++;
+      } else {
+        empates++;
       }
     }
 
@@ -949,18 +895,35 @@ class ComparacionPopup extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState() {
-    return const Center(
+  Widget _buildSinHabilidadesComunes() {
+    return Center(
       child: Padding(
-        padding: EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.info_outline, size: 64, color: Colors.white30),
-            SizedBox(height: 16),
+            Icon(
+              Icons.info_outline,
+              size: 64,
+              color: Colors.white.withOpacity(0.3),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              "Sin habilidades en común",
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
             Text(
-              "No hay estadísticas para comparar",
-              style: TextStyle(color: Colors.white60, fontSize: 16),
+              "Este jugador no tiene ninguna habilidad igual a las tuyas",
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.6),
+                fontSize: 14,
+              ),
               textAlign: TextAlign.center,
             ),
           ],

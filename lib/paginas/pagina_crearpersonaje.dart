@@ -47,6 +47,8 @@ class _CrearPersonajePageState extends State<CrearPersonajePage> {
     "avatar2.png",
     "avatar3.png",
     "avatar4.png",
+    "avatar5.png",
+    "avatar6.png",
   ];
 
   IconData _getIconoStat(String stat) {
@@ -162,43 +164,43 @@ class _CrearPersonajePageState extends State<CrearPersonajePage> {
             ),
             const SizedBox(height: 10),
 
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: avatares.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemBuilder: (context, index) {
-                final img = avatares[index];
-                final bool seleccionado = avatarSeleccionado == img;
+            // CAMBIO: Mostrar 3 avatares a la vez en cuadrados
+            SizedBox(
+              height: 120,
+              child: PageView.builder(
+                padEnds: false,
+                controller: PageController(viewportFraction: 0.33),
+                itemCount: avatares.length,
+                itemBuilder: (context, index) {
+                  final img = avatares[index];
+                  final bool seleccionado = avatarSeleccionado == img;
 
-                return GestureDetector(
-                  onTap: () {
-                    setState(() => avatarSeleccionado = img);
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: seleccionado
-                            ? Colors.purpleAccent
-                            : Colors.transparent,
-                        width: 3,
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() => avatarSeleccionado = img);
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: seleccionado
+                              ? Colors.purpleAccent
+                              : Colors.transparent,
+                          width: 3,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.asset(
-                        "assets/avatares/$img",
-                        fit: BoxFit.cover,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.asset(
+                          "assets/avatares/$img",
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
 
             const SizedBox(height: 25),
@@ -255,7 +257,7 @@ class _CrearPersonajePageState extends State<CrearPersonajePage> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                childAspectRatio: 1.1, // Cambiado de 1.5 a 1.1 para más altura
+                childAspectRatio: 1.1,
               ),
               itemBuilder: (context, index) {
                 final stat = statsDisponibles[index];
