@@ -183,6 +183,7 @@ class _PantallaInicioState extends State<PantallaInicio> {
                                 mostrarPopupHabito(context, habito);
                               },
                               refreshController: refreshController,
+                              diaSeleccionado: hoy, // ← AÑADE ESTA LÍNEA
                             );
                           },
                         ),

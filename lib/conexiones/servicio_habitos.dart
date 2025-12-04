@@ -25,6 +25,9 @@ class ServicioHabitos {
     for (var doc in snap.docs) {
       Map<String, dynamic> h = doc.data() as Map<String, dynamic>;
 
+      // IMPORTANTE: Añadir el ID del documento
+      h["id"] = doc.id;
+
       List diasSemana = h["dias"] ?? [];
       bool repetirSiempre = h["repetirSiempre"] ?? true;
       String? fechaFin = h["fechaFin"];
@@ -46,5 +49,51 @@ class ServicioHabitos {
     }
 
     return resultado;
+  }
+
+  // Método para actualizar un hábito
+  static Future<void> actualizarHabito(
+    String habitoId,
+    Map<String, dynamic> datos,
+  ) async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+
+    await _db
+        .collection("usuarios")
+        .doc(userId)
+        .collection("habitos")
+        .doc(habitoId)
+        .update(datos);
+  }
+
+  // Método para borrar un hábito
+  static Future<void> borrarHabito(String habitoId) async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+
+    await _db
+        .collection("usuarios")
+        .doc(userId)
+        .collection("habitos")
+        .doc(habitoId)
+        .delete();
+  }
+
+  // Método para obtener un hábito específico
+  static Future<Map<String, dynamic>?> obtenerHabito(String habitoId) async {
+    final userId = FirebaseAuth.instance.currentUser!.uid;
+
+    final doc = await _db
+        .collection("usuarios")
+        .doc(userId)
+        .collection("habitos")
+        .doc(habitoId)
+        .get();
+
+    if (!doc.exists) return null;
+
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    data["id"] = doc.id;
+
+    return data;
   }
 }
